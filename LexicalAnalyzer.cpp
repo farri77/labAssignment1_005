@@ -1,89 +1,144 @@
-/////////////////////// Lexical Analyzer////////////////////////////////////////
-// Convert the given code so that it can detect
-//Identifiers
-//Operators
-//Numbers
-//Data type
-//header files
-// create a seperate output file for each given type above
-#include<string.h>
-#include<ctype.h>
-#include<stdio.h>
-void keyword(char str[10])
-{ if(strcmp("for",str)==0||strcmp("while",str)==0||strcmp("do",str)==0||
-    strcmp("int",str)==0||strcmp("float",str)==0||strcmp("char",str)==0||
-    strcmp("double",str)==0||strcmp("static",str)==0||strcmp("switch",str)==0||
-    strcmp("case",str)==0)
-    printf("\n%s is a keyword",str);
-    else
-    printf("\n%s is an identifier",str);
-}
-main()
-{
-    FILE *f1,*f2,*f3;
-    char c,str[10],st1[10];
-    int num[100],lineno=0,tokenvalue=0,i=0,j=0,k=0;
-    f1=fopen("lexicalanalyzer.cpp","r");
-    f2=fopen("identifier","w");
-    f3=fopen("specialchar","w");
-    while((c=getc(f1))!=EOF)
-    {
-        if(isdigit(c))
-        {
-            tokenvalue=c-'0';
-            c=getc(f1);
-            while(isdigit(c))
-            {
-                tokenvalue*=10+c-'0';
-                c=getc(f1);
+#include <iostream>
+#include <string>
+#include <cctype>
+
+using namespace std;
+
+// Function prototypes
+void identifyToken(const string& token);
+bool isKeyword(const string& token);
+bool isDataType(const string& token);
+bool isSpecialChar(char c);
+bool isNumber(const string& token);
+
+int main() {
+    string inputCode;
+    string token;
+
+    cout << "Enter the C++ code:\n";
+    getline(cin, inputCode);
+
+    for (char c : inputCode) {
+        if (isalnum(c) || c == '_') {
+            token += c;
+        } else {
+            if (!token.empty()) {
+                identifyToken(token);
+                token.clear(); // Reset token
             }
-            num[i++]=tokenvalue;
-            ungetc(c,f1);
-        } else if(isalpha(c))
-        {
-            putc(c,f2);
-            c=getc(f1);
-            while(isdigit(c)||isalpha(c)||c=='_'||c=='$')
-            {
-                putc(c,f2);
-                c=getc(f1);
+            if (isSpecialChar(c)) {
+                string specialToken(1, c);
+                identifyToken(specialToken);
             }
-            putc(' ',f2);
-            ungetc(c,f1);
-        } else if(c==' '||c=='\t')
-        printf(" ");
-        else if(c=='\n')
-        lineno++;
-        else
-        putc(c,f3);
-    }
-    fclose(f2);
-    fclose(f3);
-    fclose(f1);
-    printf("\nThe no's in the program are");
-    for(j=0;j<i;j++)
-    printf("%d",num[j]);
-    printf("\n");
-    f2=fopen("identifier","r");
-    k=0;
-    printf("The keywords and identifiersare:");
-    while((c=getc(f2))!=EOF)
-    {
-        if(c!=' ')
-        str[k++]=c;
-        else
-        {
-            str[k]='\0';
-            keyword(str);
-            k=0;
         }
     }
-    fclose(f2);
-    f3=fopen("specialchar","r");
-    printf("\nSpecial characters are");
-    while((c=getc(f3))!=EOF)
-    printf("%c",c);
-    printf("\n");
-    fclose(f3);
-    printf("Total no. of lines are:%d",lineno);
+
+    if (!token.empty()) {
+        identifyToken(token);
+    }
+
+    cout << "Lexical analysis completed.\n";
+
+    return 0;
+}
+
+// Function to identify tokens
+void identifyToken(const string& token) {
+    if (token.size() == 1 && isSpecialChar(token[0])) {
+        char c = token[0];
+        switch (c) {
+            case '+':
+                cout << token << " is a plus.\n";
+                break;
+            case '-':
+                cout << token << " is a minus.\n";
+                break;
+            case '*':
+                cout << token << " is a multiplication.\n";
+                break;
+            case '/':
+                cout << token << " is a division.\n";
+                break;
+            case '=':
+                cout << token << " is an equal sign.\n";
+                break;
+            case '<':
+                cout << token << " is a less than sign.\n";
+                break;
+            case '>':
+                cout << token << " is a greater than sign.\n";
+                break;
+            case '(':
+                cout << token << " is a left parenthesis.\n";
+                break;
+            case ')':
+                cout << token << " is a right parenthesis.\n";
+                break;
+            case '{':
+                cout << token << " is a left curly brace.\n";
+                break;
+            case '}':
+                cout << token << " is a right curly brace.\n";
+                break;
+            case '[':
+                cout << token << " is a left square bracket.\n";
+                break;
+            case ']':
+                cout << token << " is a right square bracket.\n";
+                break;
+            case ';':
+                cout << token << " is a semicolon.\n";
+                break;
+            case ',':
+                cout << token << " is a comma.\n";
+                break;
+            default:
+                cout << token << " is an unknown special character.\n";
+        }
+    } else if (isKeyword(token)) {
+        cout << token << " is a keyword.\n";
+    } else if (isDataType(token)) {
+        cout << token << " is a data type.\n";
+    } else if (isNumber(token)) {
+        cout << token << " is a number.\n";
+    } else {
+        cout << token << " is an identifier.\n";
+    }
+}
+
+// Function to check if a token is a keyword
+bool isKeyword(const string& token) {
+    static const string keywords[] = {"for", "while", "do", "int", "float", "char", "double", "static", "switch", "case"};
+    for (const string& keyword : keywords) {
+        if (token == keyword) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Function to check if a token is a data type
+bool isDataType(const string& token) {
+    static const string dataTypes[] = {"int", "float", "char"};
+    for (const string& dataType : dataTypes) {
+        if (token == dataType) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Function to check if a character is a special character or arithmetic operator
+bool isSpecialChar(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '=' || c == '<' || c == '>' || c == '(' || c == ')' || c == '{' || c == '}' || c == '[' || c == ']' || c == ';' || c == ',');
+}
+
+// Function to check if a token is a number
+bool isNumber(const string& token) {
+    for (char c : token) {
+        if (!isdigit(c)) {
+            return false;
+        }
+    }
+    return true;
 }
