@@ -1,0 +1,40 @@
+def shift_letter(letter, shift):
+    # Ensure the letter is lowercase to simplify the calculation
+    is_upper = letter.isupper()
+    letter = letter.lower()
+
+    # Convert the letter to its alphabetical index (e.g., 'a' = 0, ..., 'z' = 25)
+    letter_index = ord(letter) - ord('a')
+
+    # Calculate the new letter's index with the given shift, using modulo 26 to wrap around
+    new_index = (letter_index + shift) % 26
+
+    # Convert the new index back to a letter
+    new_letter = chr(new_index + ord('a'))
+
+    # Convert back to uppercase if the original letter was uppercase
+    if is_upper:
+        new_letter = new_letter.upper()
+
+    return new_letter
+
+def shift_string(string, shift):
+    shifted_string = ""
+    for letter in string:
+        # Check if the character is an alphabet letter
+        if letter.isalpha():
+            # Shift the letter and append it to the shifted string
+            shifted_string += shift_letter(letter, shift)
+    return shifted_string.replace(" ", "")  # Remove spaces from the shifted string
+
+# Input string and shift amount
+string_input = input("Enter a string: ").strip()
+shift_input = int(input("Enter a number (1-26): "))
+
+# Validate the shift input
+if 1 <= shift_input <= 26:
+    # Shift the string by the specified amount
+    result = shift_string(string_input, shift_input)
+    print(f"The string '{string_input}' shifted by {shift_input} positions is: '{result}'")
+else:
+    print("Invalid input. Please enter a number between 1 to 26.")
